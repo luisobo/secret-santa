@@ -11,17 +11,9 @@ if names.count < 2
   exit 1
 end
 
-results = {}
+names.shuffle!
 
-names.each do |n|
-  available = names - [n] - results.values
-  index = SecureRandom.random_number(available.count)
-  choice = available[index]
-
-  raise "invalid draw" if choice.nil?
-  results[n] = choice
-
-end
+results = names.zip(names.rotate).to_h
 
 results.each do |k, v|
 
@@ -31,7 +23,7 @@ results.each do |k, v|
   http.verify_mode = OpenSSL::SSL::VERIFY_NONE
   request = Net::HTTP::Post.new("/api/v1/share")
   request.basic_auth(ENV['ONE_TIME_SECRET_USERNAME'], ENV['ONE_TIME_SECRET_API_KEY'])
-  request.body = "secret=Your secret santa is #{v}"
+  request.body = "secret=You are the secret santa of: #{v}"
   response = http.request(request)
 
   secret_key = JSON.parse(response.body)['secret_key']
